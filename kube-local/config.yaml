@@ -105,6 +105,8 @@ singleuser:
         security_context:
           privileged: true
           fsGroup: 100
+cull:
+  enabled: false        
 hub:
   image:
     name: entorn-io/hub-lti
@@ -134,7 +136,7 @@ hub:
               if spawner.user.name == instructor['id']:
                   is_instructor='true'
                   break
-          spawner.environment = {'NB_USER':spawner.user.name,'NB_UID':'1000','IS_INSTRUCTOR':is_instructor, 'CHOWN_HOME':'yes', 'CHOWN_HOME_OPTS':'-R', 'DOCKER_HOST':'tcp://localhost:2375', 'GRANT_SUDO':"yes",'NOTEBOOK_ARGS':"--allow-root", 'SUDOERS_ALL': "true"}
+          spawner.environment = {'NB_USER':spawner.user.name,'NB_UID':'1000','IS_INSTRUCTOR':is_instructor, 'CHOWN_HOME':'yes', 'CHOWN_HOME_OPTS':'-R', 'DOCKER_HOST':'tcp://localhost:2375', 'GRANT_SUDO':"yes",'NOTEBOOK_ARGS':"--allow-root", 'SUDOERS_ALL': "true", 'INGRESS_PUBLIC_IP': ""}
       c.Spawner.pre_spawn_hook = notebook_dir_hook
     security: |
       from kubernetes_asyncio import client
