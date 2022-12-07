@@ -168,6 +168,8 @@ ingress:
     nginx.ingress.kubernetes.io/use-port-in-redirects: "false"
     nginx.ingress.kubernetes.io/healthcheck-port: '8443'
     nginx.ingress.kubernetes.io/ssl-redirect: '443'
+    nginx.ingress.kubernetes.io/auth-keepalive: '32'
+    nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/configuration-snippet: |
       set $user 'user-redirect';
       #rstudio
@@ -177,10 +179,6 @@ ingress:
       ## jetty
       if ( $http_referer ~ ".*user\/(?<user_id>[\w\-\.\w\-]+)\/jetty\/.*$" ) {
         rewrite ^/hub/(?<arg_suffix>.*) "https://$server_name/user/$user_id/jetty/${arg_suffix}" break;
-      }
-      ## jenkins
-      if ( $http_referer ~ ".*user\/(?<user_id>[\w\-\.\w\-]+)\/jenkins\/.*$" ) {
-        rewrite ^/hub/(?<arg_suffix>.*) "https://$server_name/user/$user_id/jenkins/${arg_suffix}" break;
       }
       ### pgadmin
       set $pg 0;
@@ -201,7 +199,8 @@ ingress:
       proxy_hide_header Content-Security-Policy;
       proxy_hide_header X-XSS-Protection;
       proxy_hide_header X-Content-Type-Options;
-
+      #proxy_hide_header X-Forwarded-Port;
+      
       if ($request_method = 'OPTIONS') {
         add_header 'Access-Control-Allow-Origin' '*';
         add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
@@ -237,3 +236,18 @@ ingress:
       }
 
       proxy_set_header X-Script-Name /user/$user/pgadmin;
+
+      #Jenkins
+      add_header 'Location' "$host" always;
+      proxy_set_header Connection ""; # Clear for keepalive
+      client_body_buffer_size    128k;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-Host $host;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto https;
+
+      # JENKINS-45651 notes that X-SSH-Endpoint header is not provided unless auth succeeds
+      # ssh authentication for CLI will fail unless the X-SSH-Endpoint header is added
+      add_header 'X-SSH-Endpoint' 'local.entorn.io:50000' always;
+
