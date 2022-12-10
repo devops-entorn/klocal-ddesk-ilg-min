@@ -168,6 +168,7 @@ ingress:
     nginx.ingress.kubernetes.io/use-port-in-redirects: "false"
     nginx.ingress.kubernetes.io/healthcheck-port: '8443'
     nginx.ingress.kubernetes.io/ssl-redirect: '443'
+    nginx.ingress.kubernetes.io/large-client-header-buffers: '4 128k'
     nginx.ingress.kubernetes.io/auth-keepalive: '32'
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/configuration-snippet: |
