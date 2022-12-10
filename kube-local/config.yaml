@@ -238,7 +238,7 @@ ingress:
       proxy_set_header X-Script-Name /user/$user/pgadmin;
 
       #Jenkins
-      add_header 'Location' "$host" always;
+      #add_header 'Location' "$host" always; //Error Failed to fetch in Jupyterlab
       proxy_set_header Connection ""; # Clear for keepalive
       client_body_buffer_size    128k;
       proxy_set_header Host $host;
