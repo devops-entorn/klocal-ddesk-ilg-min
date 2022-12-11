@@ -33,6 +33,16 @@ else
         echo
 fi
 
+## autocompletion for bash
+if grep -q "kubectl completion bash" "$file"; then
+        echo "Autocompletion for kubectl is already set."
+        echo
+else
+        echo "source <(kubectl completion bash)" >> $file
+        echo "complete -o default -F __start_kubectl k" >> $file
+        echo "Autocompletion for kubectl is now set."
+        echo
+fi
 
 ## DISPLAY env var
 if grep -q "DISPLAY" "$HOME/.bashrc"; then	
